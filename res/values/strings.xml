@@ -2,7 +2,9 @@
 <resources>
 
     <string name="app_name">FubicGps</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="update">画面更新</string>
+    <string name="myInfo">位置情報</string>
     <string name="action_settings">Settings</string>
+    <string name="my_location">my_location</string>
 
 </resources>
