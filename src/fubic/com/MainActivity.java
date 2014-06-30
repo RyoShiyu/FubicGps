@@ -9,6 +9,8 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
@@ -56,7 +58,7 @@ OnClickListener{
 	ParseObject GpsScore;
 	SharedPreferences pref;
 
-	boolean restartFlag = false;
+	boolean initFlag = false;
 	public String objId;
 	public double latitude = 0;
 	public double longitude = 0;
@@ -92,6 +94,7 @@ OnClickListener{
 		GpsScore = new ParseObject("GpsScore");
 
 		pref = this.getSharedPreferences( "Parse_ID", Context.MODE_PRIVATE );
+		initFlag = true;
 	}
 
 	@Override
@@ -101,7 +104,7 @@ OnClickListener{
 		setUpLocationClientIfNeeded();
 		makePoint();
 		mLocationClient.connect();
-
+		moveInit();
 	}
 
 	@Override
@@ -142,6 +145,7 @@ OnClickListener{
 				mMap.setMyLocationEnabled(true);
 				mMap.setOnMyLocationButtonClickListener(this);
 			}
+
 		}
 	}
 
@@ -154,7 +158,11 @@ OnClickListener{
 		}
 	}
 
+	/**
+	 * マーカの生成
+	 */
 	public void makePoint() {
+
 		// TODO 自動生成されたメソッド・スタブ
 		ParseQuery<ParseObject> q = ParseQuery.getQuery("GpsScore");
 		q.orderByDescending("_created_at");
@@ -168,15 +176,21 @@ OnClickListener{
 		if (results != null) {
 			for (ParseObject otherGps : results) {
 				double lat = otherGps.getDouble("latitude");
-				double lon = otherGps.getDouble("longitude");
+				double lng = otherGps.getDouble("longitude");
 				MarkerOptions map = new MarkerOptions();
-				map.position(new LatLng(lat,lon));
+				map.position(new LatLng(lat,lng));
 				map.title("吹き出しタイトル");
 				map.snippet("スニペット");
 				mMap.addMarker(map);
 			}
 		}
 
+	}
+
+	public void moveInit(){
+
+		CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude),15);
+		mMap.moveCamera(cu);
 	}
 
 	//    /**
@@ -225,6 +239,11 @@ OnClickListener{
 		// TODO 自動生成されたメソッド・スタブ
 		latitude = location.getLatitude();
 		longitude = location.getLongitude();
+
+		if(latitude != 0 && longitude != 0 && initFlag == true){
+			moveInit();
+			initFlag =false;
+		}
 
 	}
 
