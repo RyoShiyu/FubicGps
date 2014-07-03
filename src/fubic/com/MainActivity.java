@@ -2,6 +2,9 @@ package fubic.com;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
@@ -21,6 +24,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.text.format.Time;
+import android.util.Log;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,17 +59,20 @@ LocationListener,
 OnMyLocationButtonClickListener,
 OnClickListener{
 
-	TextView texview;
+	TextView textview;
 	Location location;
-	ParseObject GpsScore;
+	ParseObject GpsScore = new ParseObject("GpsScore");
 	SharedPreferences pref;
+	Timer timer = new Timer(false);
+	TaskForLocation taskLocate;
 
 	boolean initFlag = false;
 	public String objId;
 	public double latitude = 0;
 	public double longitude = 0;
-	private List<ParseObject> results;
-	private GoogleMap mMap;
+	public List<ParseObject> results;
+	public GoogleMap mMap;
+	MarkerOptions map;
 	private LocationClient mLocationClient;
 	private static final LocationRequest REQUEST = LocationRequest.create()
 			.setInterval(5000)         // 5 seconds
@@ -74,7 +83,7 @@ OnClickListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		texview = (TextView)findViewById(R.id.textView1);
+		textview = (TextView)findViewById(R.id.textView1);
 
 		Button btn = (Button)findViewById(R.id.get_my_location_button);
 		btn.setOnClickListener(this);
@@ -91,9 +100,8 @@ OnClickListener{
 			}
 		});
 
-		GpsScore = new ParseObject("GpsScore");
-
 		pref = this.getSharedPreferences( "Parse_ID", Context.MODE_PRIVATE );
+		GpsScore = new ParseObject("GpsScore");
 		initFlag = true;
 	}
 
@@ -102,9 +110,10 @@ OnClickListener{
 		super.onResume();
 		setUpMapIfNeeded();
 		setUpLocationClientIfNeeded();
-		makePoint();
 		mLocationClient.connect();
 		moveInit();
+		locateUpdate();
+		makePoint();
 	}
 
 	@Override
@@ -113,25 +122,33 @@ OnClickListener{
 		if (mLocationClient != null) {
 			mLocationClient.disconnect();
 		}
-
 	}
 
 	@Override
 	public void onStop(){
 		super.onStop();
-		objId = pref.getString( "id", "" );
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
-		query.getInBackground(objId, new GetCallback<ParseObject>() {
-			public void done(ParseObject myGps, ParseException e) {
-				if (e == null) {
-					myGps.deleteInBackground();
-				}
-			}
-		});
-
-		Editor editor = pref.edit();
-		editor.clear();
-		editor.commit();
+		try{
+			taskLocate.cancel();
+			taskLocate = null;
+			TimeUnit.SECONDS.sleep(10);
+		}catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		//		 プリファレンスの削除に伴うParseのデータを削除する
+		//
+		//		objId = pref.getString( "id", "" );
+		//		ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
+		//		query.getInBackground(objId, new GetCallback<ParseObject>() {
+		//			public void done(ParseObject myGps, ParseException e) {
+		//				if (e == null) {
+		//					myGps.deleteInBackground();
+		//				}
+		//			}
+		//		});
+		//
+		//		Editor editor = pref.edit();
+		//		editor.clear();
+		//		editor.commit();
 	}
 
 	private void setUpMapIfNeeded() {
@@ -145,7 +162,6 @@ OnClickListener{
 				mMap.setMyLocationEnabled(true);
 				mMap.setOnMyLocationButtonClickListener(this);
 			}
-
 		}
 	}
 
@@ -159,10 +175,9 @@ OnClickListener{
 	}
 
 	/**
-	 * マーカの生成
+	 * マーカーの生成
 	 */
 	public void makePoint() {
-
 		// TODO 自動生成されたメソッド・スタブ
 		ParseQuery<ParseObject> q = ParseQuery.getQuery("GpsScore");
 		q.orderByDescending("_created_at");
@@ -172,38 +187,42 @@ OnClickListener{
 			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
-
 		if (results != null) {
 			for (ParseObject otherGps : results) {
 				double lat = otherGps.getDouble("latitude");
 				double lng = otherGps.getDouble("longitude");
-				MarkerOptions map = new MarkerOptions();
+				map = new MarkerOptions();
 				map.position(new LatLng(lat,lng));
 				map.title("吹き出しタイトル");
 				map.snippet("スニペット");
 				mMap.addMarker(map);
+
 			}
 		}
-
 	}
 
+	/**
+	 * 初期画面の設定
+	 */
 	public void moveInit(){
 
-		CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude),15);
+		CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(getLatitude(), getLongitude()),15);
 		mMap.moveCamera(cu);
 	}
 
-	//    /**
-	//     * Button to get current Location. This demonstrates how to get the current Location as required
-	//     * without needing to register a LocationListener.
-	//     */
-	//    public void showMyLocation(View view) {
-	//        if (mLocationClient != null && mLocationClient.isConnected()) {
-	//            String msg = "Location = " + mLocationClient.getLastLocation();
-	//            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-	//        }
-	//    }
+	/**
+	 * 更新タスク
+	 */
+	public void locateUpdate(){
+		if(taskLocate == null){
+			taskLocate = new TaskForLocation(this,MainActivity.this);
+		}
+		timer.scheduleAtFixedRate(taskLocate, 1000, 30000);
+	}
 
+	/**
+	 * menu action bar
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -212,6 +231,9 @@ OnClickListener{
 		return true;
 	}
 
+	/**
+	 * OptionItem
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
@@ -224,36 +246,77 @@ OnClickListener{
 		return super.onOptionsItemSelected(item);
 	}
 
-
+	/**
+	 * Called when the my location button is clicked.
+	 */
 	@Override
 	public boolean onMyLocationButtonClick() {
 		// TODO 自動生成されたメソッド・スタブ
-
 		Toast.makeText(this, "現在の位置に移動しろう！", Toast.LENGTH_SHORT).show();
 
 		return false;
 	}
 
+	/**
+	 *
+	 * Parameters:　location	The new location, as a Location object.
+	 *
+	 * LocationListenerインターフェースで用意されているメソッド.
+	 * 位置情報が変更された場合に呼び出される.
+	 *
+	 */
 	@Override
 	public void onLocationChanged(Location location) {
 		// TODO 自動生成されたメソッド・スタブ
-		latitude = location.getLatitude();
-		longitude = location.getLongitude();
+		setLatitude(location.getLatitude());
+		setLongitude(location.getLongitude());
 
-		if(latitude != 0 && longitude != 0 && initFlag == true){
+		if(getLatitude() != 0 && getLongitude() != 0 && initFlag == true){
 			moveInit();
 			initFlag =false;
 		}
 
 	}
+	/**
+	 * Latitude and Longitude's getter setter.
+	 * @return Latitude Longitude.
+	 */
+	public double getLatitude() {
+		return latitude;
+	}
 
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
 
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+	public String getObjId() {
+		return objId;
+	}
+
+	public void setObjId(String objId) {
+		this.objId = objId;
+	}
+
+	/**
+	 * Implementation of {@link OnConnectionFailedListener}.
+	 */
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO 自動生成されたメソッド・スタブ
 
 	}
 
+	/**
+	 * Callback called when connected to GCore. Implementation of {@link ConnectionCallbacks}.
+	 */
 	@Override
 	public void onConnected(Bundle arg0) {
 		mLocationClient.requestLocationUpdates(
@@ -263,42 +326,47 @@ OnClickListener{
 
 	}
 
+	/**
+	 * Callback called when disconnected from GCore. Implementation of {@link ConnectionCallbacks}.
+	 */
 	@Override
 	public void onDisconnected() {
 		// TODO 自動生成されたメソッド・スタブ
 
 	}
+
 	@Override
 	public void onClick(View v) {
 		// TODO 自動生成されたメソッド・スタブ
-		objId = pref.getString( "id", "" );
-		if(objId == "" || objId == null){
-
-			GpsScore.put("latitude", latitude);
-			GpsScore.put("longitude", longitude);
-			GpsScore.saveInBackground();
-			objId = GpsScore.getObjectId();
-
-			Editor editor = pref.edit();
-			editor.putString("id", objId);
-			editor.commit();
-
-		}else{
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
-			query.getInBackground(objId, new GetCallback<ParseObject>() {
-				@Override
-				public void done(ParseObject GpsScore, ParseException e) {
-					// TODO 自動生成されたメソッド・スタブ
-					if (e == null) {
-
-						GpsScore.put("latitude", latitude);
-						GpsScore.put("longitude", longitude);
-						GpsScore.saveInBackground();
-					}
-				}
-			});
-		}
-		String str = "緯度："+latitude+"\n経度："+longitude +"\nobjectID："+objId;
-		texview.setText(str);
+		//		objId = pref.getString( "id", "" );
+		//		if(objId == "" || objId == null){
+		//
+		//			GpsScore.put("latitude", getLatitude());
+		//			GpsScore.put("longitude", getLongitude());
+		//			GpsScore.saveInBackground();
+		//			objId = GpsScore.getObjectId();
+		//
+		//			Editor editor = pref.edit();
+		//			editor.putString("id", objId);
+		//			editor.commit();
+		//
+		//		}else{
+		//			ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
+		//			query.getInBackground(objId, new GetCallback<ParseObject>() {
+		//				@Override
+		//				public void done(ParseObject GpsScore, ParseException e) {
+		//					// TODO 自動生成されたメソッド・スタブ
+		//					if (e == null) {
+		//
+		//						GpsScore.put("latitude", getLatitude());
+		//						GpsScore.put("longitude", getLongitude());
+		//						GpsScore.saveInBackground();
+		//					}
+		//				}
+		//			});
+		//		}
+		//		String str = "緯度：" + getLongitude() + "\n経度：" +getLatitude() + "\nobjectID："+ objId;
+		//		textview.setText(str);
+		mMap.clear();
 	}
 }

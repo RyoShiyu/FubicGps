@@ -316,6 +316,7 @@ int drawable ic_plusone_standard_off_client 0x7f020072
 int drawable ic_plusone_tall_off_client 0x7f020073
 int drawable powered_by_google_dark 0x7f020074
 int drawable powered_by_google_light 0x7f020075
+int drawable tanukiicon 0x7f020076
 int id Button02 0x7f070051
 int id action_bar 0x7f07002e
 int id action_bar_activity_content 0x7f070027
