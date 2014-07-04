@@ -9,7 +9,7 @@ public class ParseApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		Parse.initialize(this, " ", " ");
+		Parse.initialize(this, "", "");
 
 		//ParseUser.enableAutomaticUser();
 		//ParseACL defaultACL = new ParseACL();

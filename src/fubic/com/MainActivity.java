@@ -17,6 +17,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -113,7 +115,6 @@ OnClickListener{
 		mLocationClient.connect();
 		moveInit();
 		locateUpdate();
-		makePoint();
 	}
 
 	@Override
@@ -134,21 +135,6 @@ OnClickListener{
 		}catch(InterruptedException e){
 			e.printStackTrace();
 		}
-		//		 プリファレンスの削除に伴うParseのデータを削除する
-		//
-		//		objId = pref.getString( "id", "" );
-		//		ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
-		//		query.getInBackground(objId, new GetCallback<ParseObject>() {
-		//			public void done(ParseObject myGps, ParseException e) {
-		//				if (e == null) {
-		//					myGps.deleteInBackground();
-		//				}
-		//			}
-		//		});
-		//
-		//		Editor editor = pref.edit();
-		//		editor.clear();
-		//		editor.commit();
 	}
 
 	private void setUpMapIfNeeded() {
@@ -195,6 +181,8 @@ OnClickListener{
 				map.position(new LatLng(lat,lng));
 				map.title("吹き出しタイトル");
 				map.snippet("スニペット");
+				BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.tanukiicon);
+				map.icon(icon);
 				mMap.addMarker(map);
 
 			}
@@ -275,10 +263,10 @@ OnClickListener{
 			moveInit();
 			initFlag =false;
 		}
-
 	}
+
 	/**
-	 * Latitude and Longitude's getter setter.
+	 * objId ,Latitude and Longitude's getter setter.
 	 * @return Latitude Longitude.
 	 */
 	public double getLatitude() {
@@ -311,7 +299,6 @@ OnClickListener{
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO 自動生成されたメソッド・スタブ
-
 	}
 
 	/**
@@ -323,7 +310,6 @@ OnClickListener{
 				REQUEST,
 				this);  // LocationListener
 		// TODO 自動生成されたメソッド・スタブ
-
 	}
 
 	/**
@@ -332,41 +318,11 @@ OnClickListener{
 	@Override
 	public void onDisconnected() {
 		// TODO 自動生成されたメソッド・スタブ
-
 	}
 
 	@Override
 	public void onClick(View v) {
-		// TODO 自動生成されたメソッド・スタブ
-		//		objId = pref.getString( "id", "" );
-		//		if(objId == "" || objId == null){
-		//
-		//			GpsScore.put("latitude", getLatitude());
-		//			GpsScore.put("longitude", getLongitude());
-		//			GpsScore.saveInBackground();
-		//			objId = GpsScore.getObjectId();
-		//
-		//			Editor editor = pref.edit();
-		//			editor.putString("id", objId);
-		//			editor.commit();
-		//
-		//		}else{
-		//			ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
-		//			query.getInBackground(objId, new GetCallback<ParseObject>() {
-		//				@Override
-		//				public void done(ParseObject GpsScore, ParseException e) {
-		//					// TODO 自動生成されたメソッド・スタブ
-		//					if (e == null) {
-		//
-		//						GpsScore.put("latitude", getLatitude());
-		//						GpsScore.put("longitude", getLongitude());
-		//						GpsScore.saveInBackground();
-		//					}
-		//				}
-		//			});
-		//		}
-		//		String str = "緯度：" + getLongitude() + "\n経度：" +getLatitude() + "\nobjectID："+ objId;
-		//		textview.setText(str);
 		mMap.clear();
+		makePoint();
 	}
 }
