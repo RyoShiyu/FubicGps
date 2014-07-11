@@ -52,6 +52,8 @@ import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 
 public class MainActivity extends ActionBarActivity
 implements
@@ -181,7 +183,7 @@ OnClickListener{
 				map.position(new LatLng(lat,lng));
 				map.title("吹き出しタイトル");
 				map.snippet("スニペット");
-				BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.tanukiicon);
+				BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.tanukicon);
 				map.icon(icon);
 				mMap.addMarker(map);
 
