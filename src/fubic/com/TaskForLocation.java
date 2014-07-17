@@ -68,13 +68,13 @@ public class TaskForLocation extends TimerTask {
 				latitude = activity.getLatitude();
 				longitude = activity.getLongitude();
 				GpsScore = activity.GpsScore;
-
-
 				objId = activity.pref.getString( "id", "" );
+
 				if(objId == "" || objId == null){
 
 					GpsScore.put("latitude", latitude);
 					GpsScore.put("longitude", longitude);
+					GpsScore.put("iconId", activity.pref.getInt("iconId", 0));
 					GpsScore.saveInBackground();
 					objId = GpsScore.getObjectId();
 
@@ -85,38 +85,19 @@ public class TaskForLocation extends TimerTask {
 					ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
 					query.getInBackground(objId, new GetCallback<ParseObject>() {
 						@Override
-						public void done(ParseObject arg0, ParseException e) {
+						public void done(ParseObject GpsScore, ParseException e) {
 							// TODO 自動生成されたメソッド・スタブ
 							if (e == null) {
 
 								GpsScore.put("latitude", latitude);
 								GpsScore.put("longitude", longitude);
+								GpsScore.put("iconId", activity.pref.getInt("iconId", 0));
 								GpsScore.saveInBackground();
 							}
 						}
 					});
 				}
-				ParseQuery<ParseObject> q = ParseQuery.getQuery("GpsScore");
-				q.orderByDescending("_created_at");
-				try{
-					results = q.find();
-				}catch(ParseException e){
-					// TODO 自動生成された catch ブロック
-					e.printStackTrace();
-				}
-				if (results != null) {
-					for (ParseObject otherGps : results) {
-						double lat = otherGps.getDouble("latitude");
-						double lng = otherGps.getDouble("longitude");
-						map = new MarkerOptions();
-						map.position(new LatLng(lat,lng));
-						map.title("吹き出しタイトル");
-						map.snippet("スニペット");
-						BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.tanukicon);
-						map.icon(icon);
-						mMap.addMarker(map);
-					}
-				}
+				activity.makePoint();
 				String msg = "更新します！" + "\n緯度：" + latitude + "\n経度：" + longitude + "\nobjId：" + objId;
 				Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
 			}

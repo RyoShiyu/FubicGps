@@ -30,6 +30,7 @@ import android.text.format.Time;
 import android.util.Log;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -61,7 +62,8 @@ ConnectionCallbacks,
 OnConnectionFailedListener,
 LocationListener,
 OnMyLocationButtonClickListener,
-OnClickListener{
+OnClickListener,
+DialogInterface.OnClickListener{
 
 	TextView textview;
 	Location location;
@@ -70,6 +72,10 @@ OnClickListener{
 	Timer timer = new Timer(false);
 	TaskForLocation taskLocate;
 
+	BitmapDescriptor icon = null;
+	final CharSequence[] items = { "狸", "犬", "猫", "熊", "鼠", "魚" };
+	int iconChar = 0;
+	int iconNumber = 0;
 	boolean initFlag = false;
 	public String objId;
 	public double latitude = 0;
@@ -163,12 +169,13 @@ OnClickListener{
 	}
 
 	/**
-	 * マーカーの生成
+	 * アイコンの生成
 	 */
 	public void makePoint() {
 		// TODO 自動生成されたメソッド・スタブ
 		ParseQuery<ParseObject> q = ParseQuery.getQuery("GpsScore");
 		q.orderByDescending("_created_at");
+		q.whereNotEqualTo("objectId", pref.getString("id", ""));
 		try {
 			results = q.find();
 		} catch (ParseException e) {
@@ -183,11 +190,69 @@ OnClickListener{
 				map.position(new LatLng(lat,lng));
 				map.title("吹き出しタイトル");
 				map.snippet("スニペット");
-				BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.tanukicon);
+				iconNumber = otherGps.getInt("iconId");
+				setIconView();
 				map.icon(icon);
 				mMap.addMarker(map);
-
 			}
+		}
+		objId = pref.getString( "id", "" );
+		if(objId == "" || objId == null){
+
+			GpsScore.put("latitude", latitude);
+			GpsScore.put("longitude", longitude);
+			GpsScore.put("iconId", pref.getInt("iconId", 0));
+			GpsScore.saveInBackground();
+			objId = GpsScore.getObjectId();
+
+			Editor editor = pref.edit();
+			editor.putString("id", objId);
+			editor.commit();
+		}
+		ParseQuery<ParseObject> quser = ParseQuery.getQuery("GpsScore");
+		quser.whereEqualTo("objectId", pref.getString("id", ""));
+		quser.getFirstInBackground(new GetCallback<ParseObject>() {
+
+			@Override
+			public void done(ParseObject object, ParseException arg1) {
+				// TODO 自動生成されたメソッド・スタブ
+				double lat = object.getDouble("latitude");
+				double lng = object.getDouble("longitude");
+				map = new MarkerOptions();
+				map.position(new LatLng(lat,lng));
+				map.title("吹き出しタイトル");
+				map.snippet("スニペット");
+				setIconView();
+				iconNumber = pref.getInt("iconId", 0);
+				setIconView();
+				map.icon(icon);
+				mMap.addMarker(map);
+			}
+		});
+	}
+
+	public void setIconView(){
+		switch (iconNumber) {
+		case 0:
+			icon = BitmapDescriptorFactory.fromResource(R.drawable.raccoon);
+			break;
+		case 1:
+			icon = BitmapDescriptorFactory.fromResource(R.drawable.dog);
+			break;
+		case 2:
+			icon = BitmapDescriptorFactory.fromResource(R.drawable.cat);
+			break;
+		case 3:
+			icon = BitmapDescriptorFactory.fromResource(R.drawable.bear);
+			break;
+		case 4:
+			icon = BitmapDescriptorFactory.fromResource(R.drawable.mouse);
+			break;
+		case 5:
+			icon = BitmapDescriptorFactory.fromResource(R.drawable.fish);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -231,6 +296,23 @@ OnClickListener{
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+
+			new AlertDialog.Builder(MainActivity.this)
+			.setTitle("これはテストalertdialog")
+			.setIcon(R.drawable.raccoon)
+			.setSingleChoiceItems(
+					items,
+					pref.getInt("iconId", 0),
+					this).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO 自動生成されたメソッド・スタブ
+							mMap.clear();
+							makePoint();
+						}
+					}).show();
+
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -326,5 +408,36 @@ OnClickListener{
 	public void onClick(View v) {
 		mMap.clear();
 		makePoint();
+		Log.d("test", "pref  "+ pref.getInt("iconId", 0));
+	}
+
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		// TODO 自動生成されたメソッド・スタブ
+		switch(which){
+		case 0:
+			iconChar = 0;
+			break;
+		case 1:
+			iconChar = 1;
+			break;
+		case 2:
+			iconChar = 2;
+			break;
+		case 3:
+			iconChar = 3;
+			break;
+		case 4:
+			iconChar = 4;
+			break;
+		case 5:
+			iconChar = 5;
+		default:
+			break;
+		}
+		Editor editor = pref.edit();
+		editor.putInt("iconId", which);
+		editor.commit();
+		GpsScore.put("iconId", pref.getInt("iconId", 0));
 	}
 }
