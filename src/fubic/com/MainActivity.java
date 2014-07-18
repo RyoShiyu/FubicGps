@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Build;
@@ -72,7 +73,11 @@ DialogInterface.OnClickListener{
 	Timer timer = new Timer(false);
 	TaskForLocation taskLocate;
 
+
 	BitmapDescriptor icon = null;
+
+	String tweet = "つぶやく";
+	String userName = "ダミです";
 	final CharSequence[] items = { "狸", "犬", "猫", "熊", "鼠", "魚" };
 	int iconChar = 0;
 	int iconNumber = 0;
@@ -104,9 +109,56 @@ DialogInterface.OnClickListener{
 			@Override
 			public void onClick(View v) {
 
-				Intent intent = getIntent();
-				finish();
-				startActivity(intent);
+				final EditText txt = new EditText(MainActivity.this);
+				new AlertDialog.Builder(MainActivity.this)
+				.setIcon(R.drawable.mouse)
+				.setTitle("今の状態を入力してください")
+				.setMessage("現在の状態は" + pref.getString("tweet", ""))
+				.setView(txt)
+				.setPositiveButton("キャンセル", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO 自動生成されたメソッド・スタブ
+					}
+				})
+				.setNegativeButton("確認", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO 自動生成されたメソッド・スタブ
+						String tweetLoc = txt.getText().toString();
+
+						Editor editor = pref.edit();
+						editor.putString("tweet", tweetLoc);
+						editor.commit();
+						objId = pref.getString( "id", "" );
+
+						Toast.makeText(MainActivity.this, "今の状態は" + tweetLoc + "に変更しました！", Toast.LENGTH_LONG).show();
+
+						if(objId == "" || objId == null){
+							GpsScore.put("tweet", tweetLoc);
+							GpsScore.saveInBackground();
+							mMap.clear();
+							makePoint();
+						}else{
+							ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
+							query.getInBackground(objId, new GetCallback<ParseObject>() {
+								@Override
+								public void done(ParseObject GpsScore, ParseException e) {
+									// TODO 自動生成されたメソッド・スタブ
+									if (e == null) {
+
+										GpsScore.put("tweet", pref.getString("tweet", ""));
+										GpsScore.saveInBackground();
+									}
+								}
+							});
+							mMap.clear();
+							makePoint();
+						}
+					}
+				}).show();
 			}
 		});
 
@@ -188,8 +240,8 @@ DialogInterface.OnClickListener{
 				double lng = otherGps.getDouble("longitude");
 				map = new MarkerOptions();
 				map.position(new LatLng(lat,lng));
-				map.title("吹き出しタイトル");
-				map.snippet("スニペット");
+				map.title(otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet);
+				map.snippet(otherGps.getString("userName")!= null ? otherGps.getString("userName"):userName);
 				iconNumber = otherGps.getInt("iconId");
 				setIconView();
 				map.icon(icon);
@@ -220,8 +272,8 @@ DialogInterface.OnClickListener{
 				double lng = object.getDouble("longitude");
 				map = new MarkerOptions();
 				map.position(new LatLng(lat,lng));
-				map.title("吹き出しタイトル");
-				map.snippet("スニペット");
+				map.title(pref.getString("tweet", "") != ""  ? pref.getString("tweet", "") : tweet);
+				map.snippet(pref.getString("userName", "") != "" ? pref.getString("userName", "") : userName);
 				setIconView();
 				iconNumber = pref.getInt("iconId", 0);
 				setIconView();
@@ -298,12 +350,19 @@ DialogInterface.OnClickListener{
 		if (id == R.id.action_settings) {
 
 			new AlertDialog.Builder(MainActivity.this)
-			.setTitle("これはテストalertdialog")
+			.setTitle("アイコン設定")
 			.setIcon(R.drawable.raccoon)
 			.setSingleChoiceItems(
 					items,
 					pref.getInt("iconId", 0),
-					this).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					this).setPositiveButton("キャンセル", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO 自動生成されたメソッド・スタブ
+						}
+					})
+					.setNegativeButton("確認", new DialogInterface.OnClickListener() {
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -312,7 +371,61 @@ DialogInterface.OnClickListener{
 							makePoint();
 						}
 					}).show();
+			return true;
+		}
+		if(id == R.id.profile){
 
+			final EditText txt = new EditText(MainActivity.this);
+
+			new AlertDialog.Builder(MainActivity.this)
+			.setIcon(R.drawable.mouse)
+			.setTitle("名前を入力してください")
+			.setMessage("現在の名前は" + pref.getString("userName", ""))
+			.setView(txt)
+			.setPositiveButton("キャンセル", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO 自動生成されたメソッド・スタブ
+				}
+			})
+			.setNegativeButton("確認", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO 自動生成されたメソッド・スタブ
+					String name = txt.getText().toString();
+
+					Editor editor = pref.edit();
+					editor.putString("userName", name);
+					editor.commit();
+					objId = pref.getString( "id", "" );
+
+					Toast.makeText(MainActivity.this, "お名前は" + name + "に変更しました！", Toast.LENGTH_LONG).show();
+
+					if(objId == "" || objId == null){
+						GpsScore.put("userName", name);
+						GpsScore.saveInBackground();
+						mMap.clear();
+						makePoint();
+					}else{
+						ParseQuery<ParseObject> query = ParseQuery.getQuery("GpsScore");
+						query.getInBackground(objId, new GetCallback<ParseObject>() {
+							@Override
+							public void done(ParseObject GpsScore, ParseException e) {
+								// TODO 自動生成されたメソッド・スタブ
+								if (e == null) {
+
+									GpsScore.put("userName", pref.getString("userName", ""));
+									GpsScore.saveInBackground();
+								}
+							}
+						});
+						mMap.clear();
+						makePoint();
+					}
+				}
+			}).show();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -438,6 +551,5 @@ DialogInterface.OnClickListener{
 		Editor editor = pref.edit();
 		editor.putInt("iconId", which);
 		editor.commit();
-		GpsScore.put("iconId", pref.getInt("iconId", 0));
 	}
 }

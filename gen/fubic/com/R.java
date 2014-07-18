@@ -1518,6 +1518,7 @@ containing a value of this type.
         public static final int none=0x7f050010;
         public static final int normal=0x7f050000;
         public static final int production=0x7f05001f;
+        public static final int profile=0x7f050054;
         public static final int progress_circular=0x7f050018;
         public static final int progress_horizontal=0x7f050019;
         public static final int radio=0x7f050041;
@@ -1748,7 +1749,8 @@ containing a value of this type.
          */
         public static final int common_signin_button_text_long=0x7f0a002b;
         public static final int myInfo=0x7f0a002f;
-        public static final int my_location=0x7f0a0031;
+        public static final int my_location=0x7f0a0032;
+        public static final int profile=0x7f0a0031;
         public static final int update=0x7f0a002e;
         /**  Text on a placeholder buy button when Google Play services is not
          available or up-to-date 

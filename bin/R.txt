@@ -382,6 +382,7 @@ int id never 0x7f050009
 int id none 0x7f050010
 int id normal 0x7f050000
 int id production 0x7f05001f
+int id profile 0x7f050054
 int id progress_circular 0x7f050018
 int id progress_horizontal 0x7f050019
 int id radio 0x7f050041
@@ -491,7 +492,8 @@ int string common_google_play_services_update_title 0x7f0a001f
 int string common_signin_button_text 0x7f0a002a
 int string common_signin_button_text_long 0x7f0a002b
 int string myInfo 0x7f0a002f
-int string my_location 0x7f0a0031
+int string my_location 0x7f0a0032
+int string profile 0x7f0a0031
 int string update 0x7f0a002e
 int string wallet_buy_button_place_holder 0x7f0a002c
 int style AppBaseTheme 0x7f0b0090
