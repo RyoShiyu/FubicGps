@@ -1,12 +1,8 @@
 package fubic.com;
 
-import java.util.List;
 import java.util.TimerTask;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -27,7 +23,6 @@ public class TaskForLocation extends TimerTask {
 	private double latitude;
 	private double longitude;
 	private ParseObject GpsScore;
-	private List<ParseObject> results;
 	private GoogleMap mMap;
 	MarkerOptions map;
 
@@ -98,8 +93,10 @@ public class TaskForLocation extends TimerTask {
 					});
 				}
 				activity.makePoint();
-				String msg = "更新します！" + "\n緯度：" + latitude + "\n経度：" + longitude + "\nobjId：" + objId;
-				Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+				if(!activity.prosFlag){
+					String msg = "更新します！" + "\n緯度：" + latitude + "\n経度：" + longitude + "\nobjId：" + objId;
+					Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+				}
 			}
 		});
 	}

@@ -1513,10 +1513,10 @@ containing a value of this type.
         public static final int match_parent=0x7f050024;
         public static final int middle=0x7f050012;
         public static final int monochrome=0x7f05002b;
-        public static final int myGrid=0x7f050052;
         public static final int never=0x7f050009;
         public static final int none=0x7f050010;
         public static final int normal=0x7f050000;
+        public static final int nowInfo=0x7f050055;
         public static final int production=0x7f05001f;
         public static final int profile=0x7f050054;
         public static final int progress_circular=0x7f050018;
@@ -1545,6 +1545,7 @@ containing a value of this type.
         public static final int tabMode=0x7f050002;
         public static final int terrain=0x7f05001b;
         public static final int textView1=0x7f050050;
+        public static final int textView2=0x7f050052;
         public static final int title=0x7f05003d;
         public static final int top_action_bar=0x7f050032;
         public static final int up=0x7f050033;
@@ -1604,8 +1605,7 @@ containing a value of this type.
         public static final int abc_search_view=0x7f030016;
         public static final int abc_simple_decor=0x7f030017;
         public static final int activity_main=0x7f030018;
-        public static final int album_sub=0x7f030019;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001a;
+        public static final int support_simple_spinner_dropdown_item=0x7f030019;
     }
     public static final class menu {
         public static final int main=0x7f0c0000;
@@ -1749,7 +1749,9 @@ containing a value of this type.
          */
         public static final int common_signin_button_text_long=0x7f0a002b;
         public static final int myInfo=0x7f0a002f;
-        public static final int my_location=0x7f0a0032;
+        public static final int my_location=0x7f0a0033;
+        public static final int my_version=0x7f0a0034;
+        public static final int nowInfo=0x7f0a0032;
         public static final int profile=0x7f0a0031;
         public static final int update=0x7f0a002e;
         /**  Text on a placeholder buy button when Google Play services is not

@@ -44,4 +44,13 @@
         android:layout_toRightOf="@+id/get_my_location_button"
         android:padding="8dp"
         android:text="@string/update"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/map"
+        android:layout_alignRight="@+id/map"
+        android:text="@string/my_version" />
+
 </RelativeLayout>

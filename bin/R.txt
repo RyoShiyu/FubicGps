@@ -377,10 +377,10 @@ int id map 0x7f05004e
 int id match_parent 0x7f050024
 int id middle 0x7f050012
 int id monochrome 0x7f05002b
-int id myGrid 0x7f050052
 int id never 0x7f050009
 int id none 0x7f050010
 int id normal 0x7f050000
+int id nowInfo 0x7f050055
 int id production 0x7f05001f
 int id profile 0x7f050054
 int id progress_circular 0x7f050018
@@ -409,6 +409,7 @@ int id submit_area 0x7f05004b
 int id tabMode 0x7f050002
 int id terrain 0x7f05001b
 int id textView1 0x7f050050
+int id textView2 0x7f050052
 int id title 0x7f05003d
 int id top_action_bar 0x7f050032
 int id up 0x7f050033
@@ -442,8 +443,7 @@ int layout abc_search_dropdown_item_icons_2line 0x7f030015
 int layout abc_search_view 0x7f030016
 int layout abc_simple_decor 0x7f030017
 int layout activity_main 0x7f030018
-int layout album_sub 0x7f030019
-int layout support_simple_spinner_dropdown_item 0x7f03001a
+int layout support_simple_spinner_dropdown_item 0x7f030019
 int menu main 0x7f0c0000
 int string abc_action_bar_home_description 0x7f0a0001
 int string abc_action_bar_up_description 0x7f0a0002
@@ -492,7 +492,9 @@ int string common_google_play_services_update_title 0x7f0a001f
 int string common_signin_button_text 0x7f0a002a
 int string common_signin_button_text_long 0x7f0a002b
 int string myInfo 0x7f0a002f
-int string my_location 0x7f0a0032
+int string my_location 0x7f0a0033
+int string my_version 0x7f0a0034
+int string nowInfo 0x7f0a0032
 int string profile 0x7f0a0031
 int string update 0x7f0a002e
 int string wallet_buy_button_place_holder 0x7f0a002c

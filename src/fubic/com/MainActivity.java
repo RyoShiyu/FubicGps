@@ -1,9 +1,7 @@
 package fubic.com;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -20,42 +18,30 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.text.format.Time;
 import android.util.Log;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.location.Location;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.os.Build;
 
 import com.parse.GetCallback;
-import com.parse.Parse;
-import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
 
 public class MainActivity extends ActionBarActivity
 implements
@@ -79,9 +65,11 @@ DialogInterface.OnClickListener{
 	String tweet = "つぶやく";
 	String userName = "ダミです";
 	final CharSequence[] items = { "狸", "犬", "猫", "熊", "鼠", "魚" };
+	final CharSequence[] prosAndCons = { "表示する", "表示しない" };
 	int iconChar = 0;
 	int iconNumber = 0;
 	boolean initFlag = false;
+	boolean prosFlag = false;
 	public String objId;
 	public double latitude = 0;
 	public double longitude = 0;
@@ -426,6 +414,44 @@ DialogInterface.OnClickListener{
 					}
 				}
 			}).show();
+			return true;
+		}
+		if(id == R.id.nowInfo){
+
+			new AlertDialog.Builder(MainActivity.this)
+			.setIcon(R.drawable.fish)
+			.setTitle("更新状態表示しますか")
+			.setSingleChoiceItems(
+					prosAndCons,
+					pref.getInt("prosAndCons", 0),
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO 自動生成されたメソッド・スタブ
+							Editor editor = pref.edit();
+							editor.putInt("prosAndCons", which);
+							editor.commit();
+						}
+					}).setPositiveButton("キャンセル", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO 自動生成されたメソッド・スタブ
+						}
+					})
+					.setNegativeButton("確認", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO 自動生成されたメソッド・スタブ
+							if(pref.getInt("prosAndCons", 0) == 0){
+								prosFlag = false;
+							}else{
+								prosFlag = true;
+							}
+						}
+					}).show();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
