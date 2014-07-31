@@ -445,11 +445,6 @@ DialogInterface.OnClickListener{
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// TODO 自動生成されたメソッド・スタブ
-							if(pref.getInt("prosAndCons", 0) == 0){
-								prosFlag = false;
-							}else{
-								prosFlag = true;
-							}
 						}
 					}).show();
 			return true;

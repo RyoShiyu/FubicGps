@@ -93,7 +93,7 @@ public class TaskForLocation extends TimerTask {
 					});
 				}
 				activity.makePoint();
-				if(!activity.prosFlag){
+				if(activity.pref.getInt("prosAndCons", 0) == 0){
 					String msg = "更新します！" + "\n緯度：" + latitude + "\n経度：" + longitude + "\nobjId：" + objId;
 					Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
 				}
