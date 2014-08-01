@@ -4,7 +4,7 @@
  * aapt tool from the resource data it found.  It
  * should not be modified by hand.
  */
-package com.google.android.gms;
+package com.google.maps.android;
 
 public final class R {
 	public static final class attr {
@@ -71,6 +71,12 @@ public final class R {
 		public static final int wallet_secondary_text_holo_dark = 0x7f07001e;
 	}
 	public static final class drawable {
+		public static final int bubble_blue = 0x7f020058;
+		public static final int bubble_green = 0x7f020059;
+		public static final int bubble_orange = 0x7f02005a;
+		public static final int bubble_purple = 0x7f02005b;
+		public static final int bubble_red = 0x7f02005c;
+		public static final int bubble_white = 0x7f02005d;
 		public static final int common_signin_btn_icon_dark = 0x7f02005f;
 		public static final int common_signin_btn_icon_disabled_dark = 0x7f020060;
 		public static final int common_signin_btn_icon_disabled_focus_dark = 0x7f020061;
@@ -122,10 +128,14 @@ public final class R {
 		public static final int selectionDetails = 0x7f08000b;
 		public static final int strict_sandbox = 0x7f080009;
 		public static final int terrain = 0x7f080003;
+		public static final int text = 0x7f080014;
 		public static final int wrap_content = 0x7f08000d;
 	}
 	public static final class integer {
 		public static final int google_play_services_version = 0x7f090000;
+	}
+	public static final class layout {
+		public static final int text_bubble = 0x7f03001a;
 	}
 	public static final class string {
 		public static final int auth_client_needs_enabling_title = 0x7f060001;
@@ -162,6 +172,9 @@ public final class R {
 		public static final int wallet_buy_button_place_holder = 0x7f06001f;
 	}
 	public static final class style {
+		public static final int Bubble_TextAppearance_Dark = 0x7f050005;
+		public static final int Bubble_TextAppearance_Light = 0x7f050006;
+		public static final int ClusterIcon_TextAppearance = 0x7f050007;
 		public static final int Theme_IAPTheme = 0x7f050000;
 		public static final int WalletFragmentDefaultButtonTextAppearance = 0x7f050003;
 		public static final int WalletFragmentDefaultDetailsHeaderTextAppearance = 0x7f050002;

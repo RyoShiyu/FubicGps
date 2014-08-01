@@ -1,5 +1,6 @@
 package fubic.com;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,8 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.ui.IconGenerator;
 
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -223,17 +226,30 @@ DialogInterface.OnClickListener{
 			e.printStackTrace();
 		}
 		if (results != null) {
+			List<MyItem> items = new ArrayList<MyItem>();
 			for (ParseObject otherGps : results) {
 				double lat = otherGps.getDouble("latitude");
 				double lng = otherGps.getDouble("longitude");
-				map = new MarkerOptions();
-				map.position(new LatLng(lat,lng));
-				map.title(otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet);
-				map.snippet(otherGps.getString("userName")!= null ? otherGps.getString("userName"):userName);
-				iconNumber = otherGps.getInt("iconId");
-				setIconView();
-				map.icon(icon);
-				mMap.addMarker(map);
+//				map = new MarkerOptions();
+//				map.position(new LatLng(lat,lng));
+//				map.title(otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet);
+//				map.snippet(otherGps.getString("userName")!= null ? otherGps.getString("userName"):userName);
+//				iconNumber = otherGps.getInt("iconId");
+//				setIconView();
+//				map.icon(icon);
+//				mMap.addMarker(map);
+				IconGenerator iconFactory = new IconGenerator(this);
+				addIcon(iconFactory,otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet, new LatLng(lat, lng-0.00001));
+
+
+				items.add(new MyItem(lat, lng));
+			}
+			ClusterManager<MyItem> mcl = new ClusterManager<MyItem>(this, getMap());
+			mMap.setOnCameraChangeListener(mcl);
+			try{
+				mcl.addItems(items);
+			}catch(Exception e){
+				Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
 			}
 		}
 		objId = pref.getString( "id", "" );
@@ -269,6 +285,17 @@ DialogInterface.OnClickListener{
 				mMap.addMarker(map);
 			}
 		});
+	}
+
+	private void addIcon(IconGenerator iconFactory, String text, LatLng position) {
+		// TODO 自動生成されたメソッド・スタブ
+		MarkerOptions markerOptions = new MarkerOptions().
+                icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(text))).
+                position(position).
+                anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
+
+        getMap().addMarker(markerOptions);
+
 	}
 
 	public void setIconView(){
@@ -573,4 +600,8 @@ DialogInterface.OnClickListener{
 		editor.putInt("iconId", which);
 		editor.commit();
 	}
+	protected GoogleMap getMap() {
+        setUpMapIfNeeded();
+        return mMap;
+    }
 }
