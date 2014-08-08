@@ -1306,6 +1306,8 @@ containing a value of this type.
          */
         public static final int activity_horizontal_margin=0x7f0b0015;
         public static final int activity_vertical_margin=0x7f0b0016;
+        public static final int custom_profile_image=0x7f0b0017;
+        public static final int custom_profile_padding=0x7f0b0018;
         /**  The platform's desired fixed height for a dialog along the major axis
          (the screen is in portrait). This may be either a fraction or a dimension.
  The platform's desired fixed height for a dialog along the major axis
@@ -1612,8 +1614,9 @@ containing a value of this type.
         public static final int abc_search_view=0x7f030016;
         public static final int abc_simple_decor=0x7f030017;
         public static final int activity_main=0x7f030018;
-        public static final int support_simple_spinner_dropdown_item=0x7f030019;
-        public static final int text_bubble=0x7f03001a;
+        public static final int multi_profile=0x7f030019;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001a;
+        public static final int text_bubble=0x7f03001b;
     }
     public static final class menu {
         public static final int main=0x7f0c0000;

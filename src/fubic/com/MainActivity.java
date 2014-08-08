@@ -18,10 +18,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
+
+import fubic.com.Person;
 
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -30,14 +36,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,7 +63,9 @@ OnConnectionFailedListener,
 LocationListener,
 OnMyLocationButtonClickListener,
 OnClickListener,
-DialogInterface.OnClickListener{
+DialogInterface.OnClickListener,
+ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindowClickListener<Person>, ClusterManager.OnClusterItemClickListener<Person>, ClusterManager.OnClusterItemInfoWindowClickListener<Person>
+{
 
 	TextView textview;
 	Location location;
@@ -62,9 +74,9 @@ DialogInterface.OnClickListener{
 	Timer timer = new Timer(false);
 	TaskForLocation taskLocate;
 
-
+	private ClusterManager<Person> mClusterManager;
 	BitmapDescriptor icon = null;
-
+	int iconAccount = 0;
 	String tweet = "つぶやく";
 	String userName = "ダミです";
 	final CharSequence[] items = { "狸", "犬", "猫", "熊", "鼠", "魚" };
@@ -84,6 +96,67 @@ DialogInterface.OnClickListener{
 			.setInterval(5000)         // 5 seconds
 			.setFastestInterval(16)    // 16ms = 60fps
 			.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+	private class PersonRenderer extends DefaultClusterRenderer<Person> {
+		private final IconGenerator mIconGenerator = new IconGenerator(getApplicationContext());
+		private final IconGenerator mClusterIconGenerator = new IconGenerator(getApplicationContext());
+		private final ImageView mImageView;
+		private final ImageView mClusterImageView;
+		private final int mDimension;
+
+		public PersonRenderer() {
+			super(getApplicationContext(), getMap(), mClusterManager);
+
+			View multiProfile = getLayoutInflater().inflate(R.layout.multi_profile, null);
+			mClusterIconGenerator.setContentView(multiProfile);
+			mClusterImageView = (ImageView) multiProfile.findViewById(R.id.image);
+
+			mImageView = new ImageView(getApplicationContext());
+			mDimension = (int) getResources().getDimension(R.dimen.custom_profile_image);
+			mImageView.setLayoutParams(new ViewGroup.LayoutParams(mDimension, mDimension));
+			int padding = (int) getResources().getDimension(R.dimen.custom_profile_padding);
+			mImageView.setPadding(padding, padding, padding, padding);
+			mIconGenerator.setContentView(mImageView);
+		}
+
+		@Override
+		protected void onBeforeClusterItemRendered(Person person, MarkerOptions markerOptions) {
+			// Draw a single person.
+			// Set the info window to show their name.
+			mImageView.setImageResource(person.profilePhoto);
+			Bitmap icon = mIconGenerator.makeIcon();
+			markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(person.name);
+		}
+
+		@Override
+		protected void onBeforeClusterRendered(Cluster<Person> cluster, MarkerOptions markerOptions) {
+			// Draw multiple people.
+			// Note: this method runs on the UI thread. Don't spend too much time in here (like in this example).
+			List<Drawable> profilePhotos = new ArrayList<Drawable>(Math.min(4, cluster.getSize()));
+			int width = mDimension;
+			int height = mDimension;
+
+			for (Person p : cluster.getItems()) {
+				// Draw 4 at most.
+				if (profilePhotos.size() == 4) break;
+				Drawable drawable = getResources().getDrawable(p.profilePhoto);
+				drawable.setBounds(0, 0, width, height);
+				profilePhotos.add(drawable);
+			}
+			MultiDrawable multiDrawable = new MultiDrawable(profilePhotos);
+			multiDrawable.setBounds(0, 0, width, height);
+
+			mClusterImageView.setImageDrawable(multiDrawable);
+			Bitmap icon = mClusterIconGenerator.makeIcon(String.valueOf(cluster.getSize()));
+			markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
+		}
+
+		@Override
+		protected boolean shouldRenderAsCluster(Cluster cluster) {
+			// Always render clusters.
+			return cluster.getSize() > 1;
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -198,6 +271,7 @@ DialogInterface.OnClickListener{
 			if (mMap != null) {
 				mMap.setMyLocationEnabled(true);
 				mMap.setOnMyLocationButtonClickListener(this);
+
 			}
 		}
 	}
@@ -226,28 +300,42 @@ DialogInterface.OnClickListener{
 			e.printStackTrace();
 		}
 		if (results != null) {
-			List<MyItem> items = new ArrayList<MyItem>();
+
+			//			List<MyItem> items = new ArrayList<MyItem>();
+			mClusterManager = new ClusterManager<Person>(this, getMap());
+			mClusterManager.setRenderer(new PersonRenderer());
+			getMap().setOnCameraChangeListener(mClusterManager);
+			getMap().setOnMarkerClickListener(mClusterManager);
+			getMap().setOnInfoWindowClickListener(mClusterManager);
+			mClusterManager.setOnClusterClickListener(this);
+			mClusterManager.setOnClusterInfoWindowClickListener(this);
+			mClusterManager.setOnClusterItemClickListener(this);
+			mClusterManager.setOnClusterItemInfoWindowClickListener(this);
 			for (ParseObject otherGps : results) {
 				double lat = otherGps.getDouble("latitude");
 				double lng = otherGps.getDouble("longitude");
-//				map = new MarkerOptions();
-//				map.position(new LatLng(lat,lng));
-//				map.title(otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet);
-//				map.snippet(otherGps.getString("userName")!= null ? otherGps.getString("userName"):userName);
-//				iconNumber = otherGps.getInt("iconId");
-//				setIconView();
-//				map.icon(icon);
-//				mMap.addMarker(map);
+				//				map = new MarkerOptions();
+				//				map.position(new LatLng(lat,lng));
+				//				map.title(otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet);
+				//				map.snippet(otherGps.getString("userName")!= null ? otherGps.getString("userName"):userName);
+				iconNumber = otherGps.getInt("iconId");
+				//				setIconView();
+				//				map.icon(icon);
+				//				mMap.addMarker(map);
 				IconGenerator iconFactory = new IconGenerator(this);
-				addIcon(iconFactory,otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet, new LatLng(lat, lng-0.00001));
-
-
-				items.add(new MyItem(lat, lng));
+				iconFactory.setContentRotation(-90);
+				iconFactory.setRotation(90);
+				iconFactory.setStyle(IconGenerator.STYLE_PURPLE);
+				addIcon(iconFactory,otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet, new LatLng(lat, lng));
+				mClusterManager.addItem(new Person(position(lat, lng),otherGps.getString("userName")!= null ? otherGps.getString("userName"):userName , IconAccount() ));
+				//				items.add(new MyItem(lat, lng));
 			}
-			ClusterManager<MyItem> mcl = new ClusterManager<MyItem>(this, getMap());
-			mMap.setOnCameraChangeListener(mcl);
+
 			try{
-				mcl.addItems(items);
+				//				mcl.addItems(items);
+				mClusterManager.cluster();
+				//				ClusterManager<MyItem> mcl = new ClusterManager<MyItem>(this, getMap());
+				//				mMap.setOnCameraChangeListener(mcl);
 			}catch(Exception e){
 				Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
 			}
@@ -290,11 +378,11 @@ DialogInterface.OnClickListener{
 	private void addIcon(IconGenerator iconFactory, String text, LatLng position) {
 		// TODO 自動生成されたメソッド・スタブ
 		MarkerOptions markerOptions = new MarkerOptions().
-                icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(text))).
-                position(position).
-                anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
+				icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(text))).
+				position(position).
+				anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
 
-        getMap().addMarker(markerOptions);
+		getMap().addMarker(markerOptions);
 
 	}
 
@@ -321,6 +409,32 @@ DialogInterface.OnClickListener{
 		default:
 			break;
 		}
+	}
+
+	public int IconAccount(){
+		switch (iconNumber) {
+		case 0:
+			iconAccount = R.drawable.raccoon;
+			break;
+		case 1:
+			iconAccount = R.drawable.dog;
+			break;
+		case 2:
+			iconAccount = R.drawable.cat;
+			break;
+		case 3:
+			iconAccount = R.drawable.bear;
+			break;
+		case 4:
+			iconAccount = R.drawable.mouse;
+			break;
+		case 5:
+			iconAccount = R.drawable.fish;
+			break;
+		default:
+			break;
+		}
+		return iconAccount;
 	}
 
 	/**
@@ -600,8 +714,38 @@ DialogInterface.OnClickListener{
 		editor.putInt("iconId", which);
 		editor.commit();
 	}
+	public float mapZoom(){
+		return mMap.getCameraPosition().zoom;
+	}
+
 	protected GoogleMap getMap() {
-        setUpMapIfNeeded();
-        return mMap;
-    }
+		setUpMapIfNeeded();
+		return mMap;
+	}
+	private LatLng position(double lat, double lng) {
+		return new LatLng(lat, lng);
+	}
+	@Override
+	public void onClusterItemInfoWindowClick(fubic.com.Person item) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public boolean onClusterItemClick(fubic.com.Person item) {
+		// TODO 自動生成されたメソッド・スタブ
+		return false;
+	}
+
+	@Override
+	public void onClusterInfoWindowClick(Cluster<fubic.com.Person> cluster) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public boolean onClusterClick(Cluster<fubic.com.Person> cluster) {
+		// TODO 自動生成されたメソッド・スタブ
+		return false;
+	}
 }
