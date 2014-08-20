@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
@@ -66,7 +67,7 @@ OnClickListener,
 DialogInterface.OnClickListener,
 ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindowClickListener<Person>, ClusterManager.OnClusterItemClickListener<Person>, ClusterManager.OnClusterItemInfoWindowClickListener<Person>
 {
-
+	IconGenerator iconFactory;
 	TextView textview;
 	Location location;
 	ParseObject GpsScore = new ParseObject("GpsScore");
@@ -77,8 +78,8 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 	private ClusterManager<Person> mClusterManager;
 	BitmapDescriptor icon = null;
 	int iconAccount = 0;
-	String tweet = "つぶやく";
-	String userName = "ダミです";
+	String tweet = "make a comment";
+	String userName = "dummy";
 	final CharSequence[] items = { "狸", "犬", "猫", "熊", "鼠", "魚" };
 	final CharSequence[] prosAndCons = { "表示する", "表示しない" };
 	int iconChar = 0;
@@ -229,6 +230,7 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 		pref = this.getSharedPreferences( "Parse_ID", Context.MODE_PRIVATE );
 		GpsScore = new ParseObject("GpsScore");
 		initFlag = true;
+
 	}
 
 	@Override
@@ -322,11 +324,13 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 				//				setIconView();
 				//				map.icon(icon);
 				//				mMap.addMarker(map);
-				IconGenerator iconFactory = new IconGenerator(this);
-				iconFactory.setContentRotation(-90);
-				iconFactory.setRotation(90);
-				iconFactory.setStyle(IconGenerator.STYLE_PURPLE);
-				addIcon(iconFactory,otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet, new LatLng(lat, lng));
+				if(mMap.getCameraPosition().zoom > 12.1){
+					IconGenerator iconFactory = new IconGenerator(this);
+					iconFactory.setContentRotation(-90);
+					iconFactory.setRotation(90);
+					iconFactory.setStyle(IconGenerator.STYLE_BLUE);
+					addIcon(iconFactory,otherGps.getString("tweet") != null ? otherGps.getString("tweet"):tweet, new LatLng(lat, lng));
+				}
 				mClusterManager.addItem(new Person(position(lat, lng),otherGps.getString("userName")!= null ? otherGps.getString("userName"):userName , IconAccount() ));
 				//				items.add(new MyItem(lat, lng));
 			}
@@ -382,8 +386,7 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 				position(position).
 				anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
 
-		getMap().addMarker(markerOptions);
-
+		mMap.addMarker(markerOptions);
 	}
 
 	public void setIconView(){
@@ -748,4 +751,9 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 		// TODO 自動生成されたメソッド・スタブ
 		return false;
 	}
+
+	public void mapLevel(){
+		Log.v("Map","Zoom Level = " + mMap.getCameraPosition().zoom);
+	}
+
 }
