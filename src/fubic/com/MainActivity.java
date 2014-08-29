@@ -33,6 +33,7 @@ import fubic.com.Person;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -41,6 +42,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,6 +79,8 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 	Timer timer = new Timer(false);
 	TaskForLocation taskLocate;
 
+	Thread thread;
+	ProgressDialog proDialog;
 	private ClusterManager<Person> mClusterManager;
 	BitmapDescriptor icon = null;
 	int iconAccount = 0;
@@ -231,7 +236,10 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 		pref = this.getSharedPreferences( "Parse_ID", Context.MODE_PRIVATE );
 		GpsScore = new ParseObject("GpsScore");
 		initFlag = true;
-
+		proDialog = new ProgressDialog(this);
+		proDialog.setTitle("更新処理");
+		proDialog.setMessage("Now Updating...");
+		proDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 	}
 
 	@Override
@@ -243,7 +251,7 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 		moveInit();
 		if(mMap.getCameraPosition().zoom > 12.1){
 
-		locateUpdate();
+			locateUpdate();
 		}
 	}
 
@@ -296,6 +304,8 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 	 */
 	public void makePoint() {
 		// TODO 自動生成されたメソッド・スタブ
+
+
 		ParseQuery<ParseObject> q = ParseQuery.getQuery("GpsScore");
 		q.orderByDescending("_created_at");
 		q.whereNotEqualTo("objectId", pref.getString("id", ""));
@@ -693,12 +703,39 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 
 	@Override
 	public void onClick(View v) {
-		if(mMap.getCameraPosition().zoom > 12.1){
-		mMap.clear();
-		makePoint();
-		Log.d("test", "pref  "+ pref.getInt("iconId", 0));
-		}
+
+		proDialog.show();
+		thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO 自動生成されたメソッド・スタブ
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					// TODO 自動生成された catch ブロック
+					e.printStackTrace();
+				}
+				Message msg = new Message();
+				msg.arg1 = 0;
+				handler.sendMessage(msg);
+			}
+		});
+
+		thread.start();
+
 	}
+	private final Handler handler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			if(mMap.getCameraPosition().zoom > 12.1){
+				mMap.clear();
+				makePoint();
+			}
+			proDialog.dismiss();
+		}
+	};
+
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
@@ -766,5 +803,4 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 	public void mapLevel(){
 		Log.v("Map","Zoom Level = " + mMap.getCameraPosition().zoom);
 	}
-
 }
