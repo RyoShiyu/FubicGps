@@ -241,7 +241,10 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 		setUpLocationClientIfNeeded();
 		mLocationClient.connect();
 		moveInit();
+		if(mMap.getCameraPosition().zoom > 12.1){
+
 		locateUpdate();
+		}
 	}
 
 	@Override
@@ -690,9 +693,11 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 
 	@Override
 	public void onClick(View v) {
+		if(mMap.getCameraPosition().zoom > 12.1){
 		mMap.clear();
 		makePoint();
 		Log.d("test", "pref  "+ pref.getInt("iconId", 0));
+		}
 	}
 
 	@Override

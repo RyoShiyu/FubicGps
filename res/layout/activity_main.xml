@@ -23,24 +23,23 @@
         android:layout_marginLeft="17dp"
         android:layout_marginTop="17dp" />
 
-
     <Button
         android:id="@+id/update"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/map"
-        android:layout_alignTop="@+id/map"
-        android:onClick="showMyLocation"
-        android:padding="8dp"
-        style="@style/style_update"/>
-
-    <Button
-        android:id="@+id/Button02"
+        style="@style/style_update"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/map"
         android:layout_alignLeft="@+id/map"
-        android:padding="8dp"
-        style="@style/style_commit"/>
+        android:onClick="showMyLocation"
+        android:padding="8dp" />
+
+    <Button
+        android:id="@+id/Button02"
+        style="@style/style_commit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/update"
+        android:layout_alignLeft="@+id/map"
+        android:padding="8dp" />
 
 </RelativeLayout>
