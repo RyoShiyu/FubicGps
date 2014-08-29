@@ -4,10 +4,14 @@
     <string name="app_name">FubicGps</string>
     <string name="update">Tweet</string>
     <string name="myInfo">即時更新</string>
-    <string name="action_settings">アイコン設定</string>
-    <string name="profile">名前設定</string>
-    <string name="nowInfo">更新設定</string>
+    <string name="action_settings">Icon-Setting</string>
+    <string name="profile">Name-Setting</string>
+    <string name="nowInfo">Update-Setting</string>
     <string name="my_location">my_location</string>
-    <string name="my_version">Version1.9</string>
+    <string name="my_version">Version:e0929119069b9d1a6f7a7b5ecd7a25bfb18c7df3</string>
+    <string name="nowVersion">Version</string>
+    <string name="title_activity_start">StartActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="start">Start</string>
 
 </resources>

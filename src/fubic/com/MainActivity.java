@@ -48,6 +48,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -165,7 +166,7 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 		setContentView(R.layout.activity_main);
 		textview = (TextView)findViewById(R.id.textView1);
 
-		Button btn = (Button)findViewById(R.id.get_my_location_button);
+		Button btn = (Button)findViewById(R.id.update);
 		btn.setOnClickListener(this);
 
 		Button btn2 = (Button)findViewById(R.id.Button02);
@@ -593,6 +594,11 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 					}).show();
 			return true;
 		}
+		if(id == R.id.myVersion){
+			String str = getString(R.string.my_version);
+			Toast.makeText(this, str, Toast.LENGTH_LONG).show();
+		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -602,7 +608,7 @@ ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindo
 	@Override
 	public boolean onMyLocationButtonClick() {
 		// TODO 自動生成されたメソッド・スタブ
-		Toast.makeText(this, "現在の位置に移動しろう！", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "現在の位置に移動する！", Toast.LENGTH_SHORT).show();
 
 		return false;
 	}

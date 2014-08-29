@@ -14,18 +14,6 @@
       android:layout_height="match_parent"
       class="com.google.android.gms.maps.SupportMapFragment"/>
 
-
-    <Button
-        android:id="@+id/get_my_location_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/map"
-        android:layout_alignLeft="@+id/map"
-        android:onClick="showMyLocation"
-        android:padding="8dp"
-        android:text="@string/myInfo"
-        />
-
     <TextView
         android:id="@+id/textView1"
         android:layout_width="200dp"
@@ -35,22 +23,24 @@
         android:layout_marginLeft="17dp"
         android:layout_marginTop="17dp" />
 
+
+    <Button
+        android:id="@+id/update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/map"
+        android:layout_alignTop="@+id/map"
+        android:onClick="showMyLocation"
+        android:padding="8dp"
+        style="@style/style_update"/>
+
     <Button
         android:id="@+id/Button02"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/map"
-        android:layout_marginLeft="20dp"
-        android:layout_toRightOf="@+id/get_my_location_button"
+        android:layout_alignLeft="@+id/map"
         android:padding="8dp"
-        android:text="@string/update"/>
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/map"
-        android:layout_alignRight="@+id/map"
-        android:text="@string/my_version" />
+        style="@style/style_commit"/>
 
 </RelativeLayout>
